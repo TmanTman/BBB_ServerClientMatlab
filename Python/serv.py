@@ -1,52 +1,35 @@
-import socket
-import threading
-import struct
-import string
-
-class clientThread(threading.Thread):
-    def __init__(self, serv):
-        threading.Thread.__init__(self)
-        self.server = serv
-        self.clientList = []
-        self.running = True
-        print("Client thread created. . .")
-    def run(self):
-        print("Beginning client thread loop. . .")
-        while self.running:
-            for client in self.clientList:
-                message = client.sock.recv(self.server.BUFFSIZE)
-                if message != None and message != "":
-                    client.update(message)
-
-class clientObject(object):
-    def __init__(self,clientInfo):
-        self.sock = clientInfo[0]
-        self.address = clientInfo[1]
-    def update(self,message):
-        self.sock.send("Testamundo.\r\n".encode())
-
-class Server(object):
-    def __init__(self):
-        self.HOST = 'localhost'
-        self.PORT = 22085
-        self.BUFFSIZE = 1024
-        self.ADDRESS = (self.HOST,self.PORT)
-        self.clientList = []
-        input("Press enter to start the server. . .")
-        self.running = True
-        self.serverSock = socket.socket()
-        self.serverSock.bind(self.ADDRESS)
-        self.serverSock.listen(2)
-        self.clientThread = clientThread(self)
-        print("Starting client thread. . .")
-        self.clientThread.start()
-        print("Awaiting connections. . .")
-        while self.running:
-            clientInfo = self.serverSock.accept()
-            print("Client connected from {}.".format(clientInfo[1]))
-            self.clientThread.clientList.append(clientObject(clientInfo))
-
-        self.serverSock.close()
-        print("- end -")
-
-serv = Server()
+#!/usr/bin/python
+ 
+# Import all from module socket
+from socket import *
+#Importing all from thread
+from thread import *
+ 
+# Defining server address and port
+host = ''  #'localhost' or '127.0.0.1' or '' are all same
+port = 52000 #Use port > 1024, below it all are reserved
+ 
+#Creating socket object
+sock = socket()
+#Binding socket to a address. bind() takes tuple of host and port.
+sock.bind((host, port))
+#Listening at the address
+sock.listen(5) #5 denotes the number of clients can queue
+ 
+def clientthread(conn):
+#infinite loop so that function do not terminate and thread do not end.
+     while True:
+#Sending message to connected client
+         conn.send('Hi! I am server\n') #send only takes string
+#Receiving from client
+         data = conn.recv(1024) # 1024 stands for bytes of data to be received
+         print data
+ 
+while True:
+#Accepting incoming connections
+    conn, addr = sock.accept()
+#Creating new thread. Calling clientthread function for this function and passing conn as argument.
+    start_new_thread(clientthread,(conn,)) #start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
+ 
+conn.close()
+sock.close()
