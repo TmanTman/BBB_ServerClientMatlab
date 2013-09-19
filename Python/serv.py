@@ -18,12 +18,15 @@ sock.listen(5) #5 denotes the number of clients can queue
  
 def clientthread(conn):
 #infinite loop so that function do not terminate and thread do not end.
-     while True:
+    data = conn.recv(1024) # 1024 stands for bytes of data to be received
+    print 'Received: ', data	
+    conn.send('Hi! I am server\n') #send only takes string
+    while True:
 #Sending message to connected client
-         conn.send('Hi! I am server\n') #send only takes string
 #Receiving from client
-         data = conn.recv(1024) # 1024 stands for bytes of data to be received
-         print data
+        data = conn.recv(1024) # 1024 stands for bytes of data to be received
+        print 'Received from client: ', data
+        conn.send('String received, thanks')
  
 while True:
 #Accepting incoming connections
